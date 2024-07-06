@@ -3,10 +3,8 @@ import { useState } from "react";
 const GridGame = () => {
   const [result, setResult] = useState(null);
   const [generatedNumbers, setGeneratedNumbers] = useState([]);
-  const [loop, setLoop] = useState(0);
   const [betAmount, setBetAmount] = useState("");
   const [selectedNumbers, setSelectedNumbers] = useState(Array(9).fill(null));
-  const [cardNumber, setCardNumber] = useState(0);
 
   const selectNumber = (cardIndex, number) => {
     if (number >= 1 && number <= 9) {
@@ -15,26 +13,19 @@ const GridGame = () => {
         updatedNumbers[cardIndex] = number;
         return updatedNumbers;
       });
-      setCardNumber(loop - 1);
     }
   };
 
   const goBackToDefault = () => {
     setGeneratedNumbers([]);
     setBetAmount("");
-    setCardNumber(0);
     setSelectedNumbers(Array(9).fill(null));
     setResult(null);
   };
 
   const handleInputClick = (cardIndex) => {
-    setLoop(cardNumber);
-    if (loop > 0) {
-      const number = parseInt(prompt("Enter a number between 1 and 9"));
-      selectNumber(cardIndex, number);
-    } else {
-      alert("Select more cards to bet!");
-    }
+    const number = parseInt(prompt("Enter a number between 1 and 9"));
+    selectNumber(cardIndex, number);
   };
   const notSelected = selectedNumbers.every((number) => number === null);
 
@@ -76,7 +67,7 @@ const GridGame = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex justify-center items-center">
-      <div className="mr-10 border p-7 w-min">
+      <div className="mr-10 border p-7 ">
         <p className="mb-2">Enter a bet amount</p>
         <input
           type="number"
@@ -87,25 +78,12 @@ const GridGame = () => {
           className="px-4 py-2 mb-2 w-full text-black"
         />
 
-        <select
-          name="number"
-          value={cardNumber}
-          onChange={(e) => setCardNumber(e.target.value)}
-          className="px-4 py-2 mb-2 text-black"
-        >
-          <option value={0} disabled>
-            Select number of cards to play
-          </option>
-          {[...Array(9)].map((_, i) => (
-            <option key={i + 1} value={i + 1}>
-              {i + 1}
-            </option>
-          ))}
-        </select>
         <button
           onClick={handleBet}
-          className="px-4 py-2 w-full bg-green-500 rounded hover:bg-green-700 transition"
-          disabled={!betAmount || betAmount <= 0}
+          className={`px-4 py-2 w-full ${
+            !betAmount ? `bg-green-700` : `bg-green-500`
+          }  rounded hover:bg-green-700 transition`}
+          disabled={!betAmount}
         >
           Bet
         </button>
