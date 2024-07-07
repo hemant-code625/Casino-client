@@ -1,95 +1,25 @@
 import { useState } from "react";
 
-const GridGameDesktop = () => {
+const MineGame = () => {
   const [result, setResult] = useState("");
   const [betAmount, setBetAmount] = useState("");
-  const [selectedNumbers, setSelectedNumbers] = useState(Array(9).fill(null));
+  //   const [selectMines, setSelectMines] = useState(3);
 
-  const selectNumber = (cardIndex, number) => {
-    if (number >= 1 && number <= 9) {
-      setSelectedNumbers((prevNumbers) => {
-        const updatedNumbers = [...prevNumbers];
-        updatedNumbers[cardIndex] = number;
-        return updatedNumbers;
-      });
-    }
-  };
-
-  const goBackToDefault = () => {
-    setBetAmount("");
-    setTimeout(() => {
-      setSelectedNumbers(Array(9).fill(null));
-      setResult(null);
-    }, 3000);
-  };
-
-  const fetchGeneratedNumbers = async () => {
-    try {
-      const response = await fetch(
-        "http://localhost:8080/api/v1/game/magic-number"
-      );
-      const array = await response.json();
-      console.log("Generated numbers:", array.data);
-      return array.data;
-    } catch (error) {
-      console.error("Error fetching generated numbers:", error);
-    }
-  };
-
-  const handleInputClick = (cardIndex) => {
-    const number = parseInt(prompt("Enter a number between 1 and 9"));
-    selectNumber(cardIndex, number);
-  };
-  const notSelected = selectedNumbers.every((number) => number === null);
+  //   M (multipliers) = 1.09 , 1.19 ,
 
   const handleBet = async () => {
     setResult(null);
-
-    if (notSelected) {
-      alert("Please select at least one number to bet on!");
-      setBetAmount("");
-      return;
-    }
 
     if (!betAmount) {
       alert("Please enter a bet amount");
       return;
     }
-
-    try {
-      const generatedNumbers = await fetchGeneratedNumbers();
-
-      if (generatedNumbers.length === 0) {
-        alert("Something went wrong!");
-        return;
-      }
-
-      let isWinner = true;
-      for (let i = 0; i < selectedNumbers.length; i++) {
-        if (
-          selectedNumbers[i] !== null &&
-          selectedNumbers[i] !== generatedNumbers[i]
-        ) {
-          isWinner = false;
-          break;
-        }
-      }
-
-      setResult(
-        isWinner
-          ? `You won! Amount won: ${betAmount * 2}`
-          : `You lost! Amount lost: ${betAmount}`
-      );
-
-      goBackToDefault();
-    } catch (error) {
-      console.error("Error in fetching numbers:", error);
-    }
+    // Send user data to the server and get back the result
   };
 
   return (
     <div className="bg-gradient-to-br from-gray-900 to-gray-800 text-white min-h-screen">
-      <h1 className="text-center text-xl pt-4">Magic Number</h1>
+      <h1 className="text-center text-xl pt-4">Mine Game</h1>
       <div className="flex flex-col items-center justify-center p-8">
         <span className="bg-gray-800 rounded-lg">
           <span className="px-2 py-3"> {"0.0000 ₹"} </span>
@@ -123,11 +53,11 @@ const GridGameDesktop = () => {
         </div>
         <div className="flex items-center justify-center">
           <div className="grid grid-cols-3 gap-4 w-full max-w-xs mx-auto p-5 ">
-            {selectedNumbers.map((number, index) => (
+            {Array(9).map((number, index) => (
               <div
                 key={index}
                 onClick={() => {
-                  handleInputClick(index);
+                  console.log(" Card clicked");
                 }}
                 className="hover:transition-transform hover:scale-105 bg-gray-800 hover:bg-gray-700 relative flex items-center justify-center w-20 h-20 border-2 border-gray-700 rounded cursor-pointer"
               >
@@ -161,4 +91,4 @@ const GridGameDesktop = () => {
   );
 };
 
-export default GridGameDesktop;
+export default MineGame;
