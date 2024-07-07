@@ -1,8 +1,7 @@
 import { useState } from "react";
 
 const GridGameDesktop = () => {
-  const [result, setResult] = useState(null);
-  const [generatedNumbers, setGeneratedNumbers] = useState([]);
+  const [result, setResult] = useState("");
   const [betAmount, setBetAmount] = useState("");
   const [selectedNumbers, setSelectedNumbers] = useState(Array(9).fill(null));
 
@@ -17,10 +16,22 @@ const GridGameDesktop = () => {
   };
 
   const goBackToDefault = () => {
-    setGeneratedNumbers([]);
     setBetAmount("");
     setSelectedNumbers(Array(9).fill(null));
     setResult(null);
+  };
+
+  const fetchGeneratedNumbers = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:8080/api/v1/game/magic-number"
+      );
+      const array = await response.json();
+      console.log("Generated numbers:", array.data);
+      return array.data;
+    } catch (error) {
+      console.error("Error fetching generated numbers:", error);
+    }
   };
 
   const handleInputClick = (cardIndex) => {
@@ -29,40 +40,51 @@ const GridGameDesktop = () => {
   };
   const notSelected = selectedNumbers.every((number) => number === null);
 
-  const handleBet = () => {
+  const handleBet = async () => {
     setResult(null);
 
     if (notSelected) {
-      alert("Please select atleast one number to bet on!");
+      alert("Please select at least one number to bet on!");
       setBetAmount("");
       return;
     }
-    let numbers = [];
-    while (numbers.length < 9) {
-      const randomNumber = Math.floor(Math.random() * 9) + 1;
-      if (!numbers.includes(randomNumber)) {
-        numbers.push(randomNumber);
-      }
-    }
-    setGeneratedNumbers(numbers);
 
-    if (generatedNumbers.length != 0) {
-      // for (let i = 0; i < generatedNumbers.length; i++) {
-      //   if (selectedNumbers[i] === generatedNumbers[i]) {
-      //     console.log("selectedNumbers[i] ", selectedNumbers[i]);
-      //     console.log("generatedNumbers[i] ", generatedNumbers[i]);
-      //     c = c + 1;
-      //   }
-      // }
-      // if (c === 9) {
-      //   setResult(`You won 10x of ${betAmount}`);
-      // } else {
-      //   setResult(`You lost ${betAmount}!`);
-      // }
-    } else {
-      alert("Something went wrong!"); // if generatedNumbers is empty
+    if (!betAmount) {
+      alert("Please enter a bet amount");
+      return;
     }
-    goBackToDefault();
+
+    try {
+      const generatedNumbers = await fetchGeneratedNumbers();
+
+      if (generatedNumbers.length === 0) {
+        alert("Something went wrong!");
+        return;
+      }
+
+      let isWinner = true;
+      for (let i = 0; i < selectedNumbers.length; i++) {
+        if (
+          selectedNumbers[i] !== null &&
+          selectedNumbers[i] !== generatedNumbers[i]
+        ) {
+          isWinner = false;
+          break;
+        }
+      }
+
+      setResult(
+        isWinner
+          ? `You won! Amount won: ${betAmount * 2}`
+          : `You lost! Amount lost: ${betAmount}`
+      );
+
+      setTimeout(() => {
+        goBackToDefault();
+      }, 5000);
+    } catch (error) {
+      console.error("Error in fetching numbers:", error);
+    }
   };
 
   return (
