@@ -66,18 +66,19 @@ const GridGame = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    // <div className="min-h-screen bg-gray-900 text-white">
+    <div className="bg-gradient-to-br from-gray-900 to-gray-800 text-white">
       <div className="flex flex-col items-center justify-center p-20">
-        <span className="border rounded-md">
+        <span className="bg-gray-800 rounded-lg">
           <span className="px-2 py-3"> {"0.0000 ₹"} </span>
-          <button className="bg-blue-500 font-semibold px-2 py-3 rounded-e-md hover:bg-blue-600">
+          <button className="bg-blue-500 font-semibold px-2 py-3 rounded-e-lg hover:bg-blue-600">
             {" "}
             Wallet{" "}
           </button>
         </span>
       </div>
       <div className="flex justify-center items-center">
-        <div className="mr-10 border p-7 ">
+        <div className="mr-10 bg-gray-800 rounded-lg p-7 ">
           <p className="mb-2">Enter a bet amount</p>
           <input
             type="number"
@@ -90,8 +91,8 @@ const GridGame = () => {
 
           <button
             onClick={handleBet}
-            className={`px-4 py-2 w-full ${
-              !betAmount ? `bg-green-700` : `bg-green-500`
+            className={`px-4 py-2 w-full font-mono ${
+              !betAmount ? `bg-green-700` : `bg-green-600`
             }  rounded hover:bg-green-700 transition`}
             disabled={!betAmount}
           >
@@ -115,6 +116,21 @@ const GridGame = () => {
             ))}
           </div>
           {result && <div className="m-4 text-xl ">{result}</div>}
+        </div>
+      </div>
+      <div className="flex items-center justify-around mt-10">
+        <div className="max-w-md p-6 bg-gray-800 rounded-lg shadow-md">
+          <h3 className="text-white text-lg font-semibold mb-4">
+            Instructions
+          </h3>
+          <p className="text-white mb-2">
+            1. Click on the cards and enter a number.
+          </p>
+          <p className="text-white mb-2">2. Enter a bet amount and play!</p>
+          <p className="text-white mb-2">
+            3. If the number you choose is generated on the same card, then you
+            win based on the risk you took otherwise, you lose.
+          </p>
         </div>
       </div>
     </div>
