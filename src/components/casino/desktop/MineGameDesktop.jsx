@@ -43,7 +43,10 @@ const MineGameDesktop = () => {
     }
     try {
       const { data } = await startGame({
-        variables: { betAmount: parseFloat(betAmount), mineCount },
+        variables: {
+          betAmount: parseFloat(betAmount),
+          mineCount: parseInt(mineCount),
+        },
       });
       setGameId(data.startGame.gameId);
     } catch (error) {
@@ -170,12 +173,12 @@ const MineGameDesktop = () => {
             {grid.map((cell, index) => (
               <div
                 key={index}
-                onClick={() => handleTileClick(index)}
+                onClick={() => gameId && handleTileClick(index)}
                 className="hover:transition-transform hover:scale-105 bg-gray-800 hover:bg-gray-700 relative flex items-center justify-center w-20 h-20 border-2 border-gray-700 rounded cursor-pointer"
               >
                 <div
                   className={`${
-                    opacity ? "opacity-35" : ""
+                    opacity ? "opacity-65" : ""
                   } absolute inset-0 flex items-center justify-center`}
                 >
                   {cell && <img src={cell} alt="" />}
