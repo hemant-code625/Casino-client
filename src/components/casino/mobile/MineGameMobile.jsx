@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import {
   START_GAME,
   SELECT_TILE,
   GET_GAME_RESULTS,
+  CASHOUT_RESULT,
 } from "../../../utility/Querries.js";
 import mine from "../../../assets/mine.svg";
 import gem from "../../../assets/gem.svg";
@@ -21,6 +22,8 @@ const MineGameMobile = () => {
   const [grid, setGrid] = useState(Array(25).fill(null));
   const [opacity, setOpacity] = useState(false);
   const [tilesClicked, setTilesClicked] = useState(false);
+  const [multiplier, setMultiplier] = useState(0);
+  const [winningAmount, setWinningAmount] = useState(null);
 
   const [startGame] = useMutation(START_GAME);
   const [selectTile] = useMutation(SELECT_TILE);
@@ -30,9 +33,13 @@ const MineGameMobile = () => {
     skip: !gameId,
   });
 
+  const [cashoutResult] = useMutation(CASHOUT_RESULT);
+
   const handleBet = async () => {
     playButtonClickedAudio();
     setIsGameOver(false);
+    setMultiplier(0);
+    setWinningAmount(0);
     setOpacity(false);
     setGrid(Array(25).fill(null));
     setTilesClicked(false);
@@ -69,10 +76,11 @@ const MineGameMobile = () => {
       });
       const isMine = data.selectTile.isMine;
       const newGrid = [...grid];
+      setMultiplier(data.selectTile.multiplier);
+      setWinningAmount(data.selectTile.winningAmount);
 
       newGrid[position] = isMine ? mine : gem;
       setGrid(newGrid);
-
       // Play corresponding sound effect
       const audio = new Audio(isMine ? mineAudio : gemAudio);
       audio.play();
@@ -86,11 +94,26 @@ const MineGameMobile = () => {
     }
   };
 
-  const handleCashout = () => {
+  const handleCashout = async () => {
     playButtonClickedAudio();
     setIsGameOver(true);
-    showResult();
-    setBetAmount("");
+    setOpacity(true);
+
+    try {
+      const { data } = await cashoutResult({
+        variables: { gameId },
+      });
+      console.log("data.cashoutResult ", data.cashoutResult);
+      setGrid(
+        data.cashoutResult.mineField.map((cell) => (cell === "M" ? mine : gem))
+      );
+      setMineCount(data.cashoutResult.mineCount);
+      setBetAmount(data.cashoutResult.betAmount);
+      setMultiplier(data.cashoutResult.multiplier);
+      setWinningAmount(data.cashoutResult.winningAmount);
+    } catch (error) {
+      console.error("Error cashing out:", error);
+    }
   };
 
   const showResult = async () => {
@@ -100,13 +123,6 @@ const MineGameMobile = () => {
       data.getGameResults.mineField.map((cell) => (cell === "M" ? mine : gem))
     );
   };
-
-  useEffect(() => {
-    // Clean up audio resources on component unmount or game over
-    return () => {
-      // Stop any playing audio if necessary
-    };
-  }, []);
 
   return (
     <div className="bg-gradient-to-br from-gray-900 to-gray-800 text-white min-h-screen">
@@ -126,7 +142,7 @@ const MineGameMobile = () => {
           {grid.map((cell, index) => (
             <div
               key={index}
-              onClick={() => gameId && handleTileClick(index)}
+              onClick={() => handleTileClick(index)}
               className="hover:transition-transform hover:scale-105 bg-gray-800 hover:bg-gray-700 relative flex items-center justify-center w-16 h-16 border-2 border-gray-700 rounded cursor-pointer"
             >
               <div
@@ -167,6 +183,8 @@ const MineGameMobile = () => {
               </option>
             ))}
           </select>
+          <div className="ml-3">Multiplier: {multiplier} x </div>
+          <div className="ml-3">Winning Amount: {winningAmount}</div>
           {gameId && !isGameOver ? (
             <button
               onClick={handleCashout}
