@@ -44,8 +44,8 @@ const MineGameMobile = () => {
     setGrid(Array(25).fill(null));
     setTilesClicked(false);
 
-    if (!betAmount) {
-      alert("Please enter a bet amount");
+    if (!betAmount && betAmount < 0) {
+      alert("Please enter a valid amount");
       return;
     }
     try {
