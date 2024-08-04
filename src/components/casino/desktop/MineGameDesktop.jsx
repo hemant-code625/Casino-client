@@ -123,7 +123,7 @@ const MineGameDesktop = () => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-gray-900 to-gray-800 text-white min-h-screen">
+    <div className="bg-gradient-to-br bg-gray-900 text-white min-h-screen">
       <h1 className="text-center text-3xl pt-4 font-bold">Mine Game</h1>
       <div className="flex flex-col items-center justify-center p-8">
         <span className="bg-gray-800 rounded-lg">

@@ -26,10 +26,10 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route
+          {/* <Route
             path="/casino/magic-number"
             element={isMobile ? <GridGameMobile /> : <GridGameDesktop />}
-          />
+          /> */}
           <Route
             path="/casino/mines"
             element={isMobile ? <MineGameMobile /> : <MineGameDesktop />}
