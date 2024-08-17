@@ -6,22 +6,19 @@ const PaymentPage = () => {
   const [addAmount, setAddAmount] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const razorpay_key = import.meta.env.VITE_RAZORPAY_KEY;
-
+  const url = import.meta.env.VITE_API_URL;
   const initiatePayment = async () => {
     try {
       if (!addAmount) return;
       if (addAmount < 100)
         return alert("Minimum amount that you can add is of 100 INR");
-      const response = await fetch(
-        "http://localhost:8080/api/v1/payment/create-order",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ amt: parseInt(addAmount) }),
-        }
-      );
+      const response = await fetch(`${url}/api/v1/payment/create-order`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ amt: parseInt(addAmount) }),
+      });
       const data = await response.json();
       setOrder(data);
       openRazorpay(data);
@@ -32,10 +29,9 @@ const PaymentPage = () => {
 
   const handleWithdraw = async () => {
     try {
-      const response = await axios.post(
-        "http://localhost:8080/api/v1/payment/withdraw",
-        { payout: parseInt(withdrawAmount) }
-      );
+      const response = await axios.post(`${url}/api/v1/payment/withdraw`, {
+        payout: parseInt(withdrawAmount),
+      });
       if (response.data.success) {
         alert("Withdrawal successful!");
       } else {
@@ -57,7 +53,7 @@ const PaymentPage = () => {
       handler: async (response) => {
         try {
           const verification = await axios.post(
-            "http://localhost:8080/api/v1/payment/verify-payment",
+            `${url}/api/v1/payment/verify-payment`,
             {
               payment_id: response.razorpay_payment_id,
               order_id: response.razorpay_order_id,
