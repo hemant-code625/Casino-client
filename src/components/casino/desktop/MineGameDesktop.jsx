@@ -12,6 +12,7 @@ import gem from "../../../assets/gem.svg";
 import gemAudio from "../../../assets/gem.mp3";
 import mineAudio from "../../../assets/mine.mp3";
 import buttonClickedAudio from "../../../assets/buttonClicked.mp3";
+import { useNavigate } from "react-router-dom";
 
 const MineGameDesktop = () => {
   const [betAmount, setBetAmount] = useState("");
@@ -27,6 +28,8 @@ const MineGameDesktop = () => {
 
   const [startGame] = useMutation(START_GAME);
   const [selectTile] = useMutation(SELECT_TILE);
+
+  const navigate = useNavigate();
 
   const { refetch } = useQuery(GET_GAME_RESULTS, {
     variables: { gameId },
@@ -128,7 +131,10 @@ const MineGameDesktop = () => {
       <div className="flex flex-col items-center justify-center p-8">
         <span className="bg-gray-800 rounded-lg">
           <span className="px-2 py-3"> {"0.0000 ₹"} </span>
-          <button className="bg-blue-500 font-semibold px-2 py-3 rounded-e-lg hover:bg-blue-600">
+          <button
+            onClick={() => navigate("/wallet")}
+            className="bg-blue-500 font-semibold px-2 py-3 rounded-e-lg hover:bg-blue-600"
+          >
             {" "}
             Wallet{" "}
           </button>

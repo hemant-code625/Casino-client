@@ -6,6 +6,8 @@ import GridGameMobile from "./components/casino/mobile/GridGameMobile";
 import { useEffect, useState } from "react";
 import MineGameDesktop from "./components/casino/desktop/MineGameDesktop";
 import MineGameMobile from "./components/casino/mobile/MineGameMobile";
+import HandleWallet from "./components/HandleWallet";
+import PaymentPage from "./pages/PaymentPage";
 
 function App() {
   const [isMobile, setIsMobile] = useState(false);
@@ -34,6 +36,7 @@ function App() {
             path="/casino/mines"
             element={isMobile ? <MineGameMobile /> : <MineGameDesktop />}
           />
+          <Route path="/wallet" element={<PaymentPage />} />
           <Route path="*" element={<PageNotFound />} />
         </Routes>
       </Router>
