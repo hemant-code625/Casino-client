@@ -1,12 +1,11 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import PageNotFound from "./pages/PageNotFound";
 import HomePage from "./pages/HomePage";
-import GridGameDesktop from "./components/casino/desktop/GridGameDesktop";
-import GridGameMobile from "./components/casino/mobile/GridGameMobile";
+// import GridGameDesktop from "./components/casino/desktop/GridGameDesktop";
+// import GridGameMobile from "./components/casino/mobile/GridGameMobile";
 import { useEffect, useState } from "react";
 import MineGameDesktop from "./components/casino/desktop/MineGameDesktop";
 import MineGameMobile from "./components/casino/mobile/MineGameMobile";
-import HandleWallet from "./components/HandleWallet";
 import PaymentPage from "./pages/PaymentPage";
 
 function App() {
