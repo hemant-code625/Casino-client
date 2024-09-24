@@ -1,12 +1,11 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import PageNotFound from "./pages/PageNotFound";
 import HomePage from "./pages/HomePage";
-// import GridGameDesktop from "./components/casino/desktop/GridGameDesktop";
-// import GridGameMobile from "./components/casino/mobile/GridGameMobile";
 import { useEffect, useState } from "react";
 import MineGameDesktop from "./components/casino/desktop/MineGameDesktop";
 import MineGameMobile from "./components/casino/mobile/MineGameMobile";
-import PaymentPage from "./pages/PaymentPage";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const [isMobile, setIsMobile] = useState(false);
@@ -24,18 +23,14 @@ function App() {
   }, []);
   return (
     <>
+      <ToastContainer />
       <Router>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          {/* <Route
-            path="/casino/magic-number"
-            element={isMobile ? <GridGameMobile /> : <GridGameDesktop />}
-          /> */}
           <Route
             path="/casino/mines"
             element={isMobile ? <MineGameMobile /> : <MineGameDesktop />}
           />
-          <Route path="/wallet" element={<PaymentPage />} />
           <Route path="*" element={<PageNotFound />} />
         </Routes>
       </Router>

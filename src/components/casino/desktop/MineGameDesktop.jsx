@@ -12,7 +12,8 @@ import gem from "../../../assets/gem.svg";
 import gemAudio from "../../../assets/gem.mp3";
 import mineAudio from "../../../assets/mine.mp3";
 import buttonClickedAudio from "../../../assets/buttonClicked.mp3";
-import { useNavigate } from "react-router-dom";
+import WalletPopup from "../../WalletPopup.jsx";
+import { toast } from "react-toastify";
 
 const MineGameDesktop = () => {
   const [betAmount, setBetAmount] = useState("");
@@ -28,8 +29,7 @@ const MineGameDesktop = () => {
 
   const [startGame] = useMutation(START_GAME);
   const [selectTile] = useMutation(SELECT_TILE);
-
-  const navigate = useNavigate();
+  const [toggleWallet, setToggleWallet] = useState(false);
 
   const { refetch } = useQuery(GET_GAME_RESULTS, {
     variables: { gameId },
@@ -46,8 +46,12 @@ const MineGameDesktop = () => {
     setGrid(Array(25).fill(null));
     setTilesClicked(false);
 
-    if (!betAmount && betAmount < 0) {
-      alert("Please enter a valid amount");
+    if (!betAmount || betAmount <= 0) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+    if (mineCount === "") {
+      toast.error("Please select number of mines to play with to continue");
       return;
     }
     try {
@@ -68,7 +72,13 @@ const MineGameDesktop = () => {
   };
 
   const handleTileClick = async (position) => {
-    if (isGameOver) return;
+    if (!gameId) {
+      toast.error("Please place a bet to start the game");
+      return;
+    }
+
+    if (isGameOver || grid[position] !== null) return;
+
     setTilesClicked(true);
 
     try {
@@ -112,6 +122,7 @@ const MineGameDesktop = () => {
       setBetAmount(data.cashoutResult.betAmount);
       setMultiplier(data.cashoutResult.multiplier);
       setWinningAmount(data.cashoutResult.winningAmount);
+      toast.success("Cashout successfully");
     } catch (error) {
       console.error("Error cashing out:", error);
     }
@@ -124,7 +135,9 @@ const MineGameDesktop = () => {
       data.getGameResults.mineField.map((cell) => (cell === "M" ? mine : gem))
     );
   };
-
+  const toggleWalletPopup = () => {
+    setToggleWallet(!toggleWallet);
+  };
   return (
     <div className="bg-gradient-to-br bg-gray-900 text-white min-h-screen">
       <h1 className="text-center text-3xl pt-4 font-bold">Mine Game</h1>
@@ -132,7 +145,7 @@ const MineGameDesktop = () => {
         <span className="bg-gray-800 rounded-lg">
           <span className="px-2 py-3"> {"0.0000 ₹"} </span>
           <button
-            onClick={() => navigate("/wallet")}
+            onClick={() => toggleWalletPopup()}
             className="bg-blue-500 font-semibold px-2 py-3 rounded-e-lg hover:bg-blue-600"
           >
             {" "}
@@ -140,8 +153,14 @@ const MineGameDesktop = () => {
           </button>
         </span>
       </div>
+      {toggleWallet && (
+        <WalletPopup
+          isOpen={toggleWallet}
+          onClose={() => setToggleWallet(false)}
+        />
+      )}
       <div className="flex justify-center items-center">
-        <div className="mr-10 bg-gray-800 rounded-lg p-7 ">
+        <div className="bg-gray-800 rounded-lg p-4 w-full max-w-lg">
           <p className="mb-2">Enter a bet amount</p>
           <input
             type="number"
@@ -149,19 +168,19 @@ const MineGameDesktop = () => {
             min={0}
             onChange={(e) => setBetAmount(e.target.value)}
             placeholder="0.000"
-            className="px-4 py-2 mb-2 w-full text-black"
+            className="px-4 py-2 mb-2 w-full text-white bg-gray-700 rounded-lg"
           />
           <select
             name="number"
             id="number"
             value={mineCount}
             onChange={(e) => setMineCount(e.target.value)}
-            className="px-4 py-2 mb-2 text-black"
+            className="px-4 py-2 mb-2 text-white bg-gray-700 rounded-lg"
           >
             <option value="" disabled>
               Select Mines
             </option>
-            {[...Array(9)].map((_, i) => (
+            {[...Array(24)].map((_, i) => (
               <option key={i + 1} value={i + 1}>
                 {i + 1}
               </option>
@@ -174,7 +193,7 @@ const MineGameDesktop = () => {
               onClick={handleCashout}
               className={`mt-2 px-4 py-2 w-full font-mono ${
                 !tilesClicked || isGameOver ? "bg-green-700" : "bg-green-600"
-              } rounded hover:bg-green-700 transition cursor-pointer`}
+              } rounded-lg hover:bg-green-700 transition cursor-pointer`}
               disabled={!tilesClicked || isGameOver}
             >
               Cashout
@@ -182,10 +201,9 @@ const MineGameDesktop = () => {
           ) : (
             <button
               onClick={handleBet}
-              className={`mt-2 px-4 py-2 w-full font-mono ${
+              className={`mt-2 px-4 py-3 w-full font-mono ${
                 !betAmount ? "bg-green-700" : "bg-green-600"
-              } rounded hover:bg-green-700 transition cursor-pointer`}
-              disabled={!betAmount || !mineCount}
+              } rounded-lg hover:bg-green-700 transition cursor-pointer`}
             >
               Bet
             </button>
@@ -197,7 +215,7 @@ const MineGameDesktop = () => {
               <div
                 key={index}
                 onClick={() => handleTileClick(index)}
-                className="hover:transition-transform hover:scale-105 bg-gray-800 hover:bg-gray-700 relative flex items-center justify-center w-20 h-20 border-2 border-gray-700 rounded cursor-pointer"
+                className="hover:transition-transform hover:scale-105 bg-gray-800 hover:bg-gray-700 relative flex items-center justify-center w-20 h-20 border-2 border-gray-700 rounded-lg cursor-pointer"
               >
                 <div
                   className={`${

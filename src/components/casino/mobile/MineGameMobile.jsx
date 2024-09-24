@@ -12,6 +12,8 @@ import gem from "../../../assets/gem.svg";
 import gemAudio from "../../../assets/gem.mp3";
 import mineAudio from "../../../assets/mine.mp3";
 import buttonClickedAudio from "../../../assets/buttonClicked.mp3";
+import WalletPopup from "../../WalletPopup.jsx";
+import { toast } from "react-toastify";
 
 const MineGameMobile = () => {
   const [betAmount, setBetAmount] = useState("");
@@ -27,6 +29,11 @@ const MineGameMobile = () => {
 
   const [startGame] = useMutation(START_GAME);
   const [selectTile] = useMutation(SELECT_TILE);
+  const [toggleWallet, setToggleWallet] = useState(false);
+
+  const toggleWalletPopup = () => {
+    setToggleWallet(!toggleWallet);
+  };
 
   const { refetch } = useQuery(GET_GAME_RESULTS, {
     variables: { gameId },
@@ -44,8 +51,12 @@ const MineGameMobile = () => {
     setGrid(Array(25).fill(null));
     setTilesClicked(false);
 
-    if (!betAmount && betAmount < 0) {
-      alert("Please enter a valid amount");
+    if (!betAmount && betAmount <= 0) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+    if (mineCount === "") {
+      toast.error("Please select number of mines to play with to continue");
       return;
     }
     try {
@@ -67,6 +78,10 @@ const MineGameMobile = () => {
   };
 
   const handleTileClick = async (position) => {
+    if (!gameId) {
+      toast.error("Please place a bet to start the game");
+      return;
+    }
     if (isGameOver) return;
     setTilesClicked(true);
 
@@ -103,7 +118,6 @@ const MineGameMobile = () => {
       const { data } = await cashoutResult({
         variables: { gameId },
       });
-      console.log("data.cashoutResult ", data.cashoutResult);
       setGrid(
         data.cashoutResult.mineField.map((cell) => (cell === "M" ? mine : gem))
       );
@@ -111,6 +125,7 @@ const MineGameMobile = () => {
       setBetAmount(data.cashoutResult.betAmount);
       setMultiplier(data.cashoutResult.multiplier);
       setWinningAmount(data.cashoutResult.winningAmount);
+      toast.success("Cashout successfully");
     } catch (error) {
       console.error("Error cashing out:", error);
     }
@@ -130,13 +145,21 @@ const MineGameMobile = () => {
       <div className="flex flex-col items-center justify-center p-8">
         <span className="bg-gray-800 rounded-lg">
           <span className="px-2 py-3"> {"0.0000 ₹"} </span>
-          <button className="bg-blue-500 font-semibold px-2 py-3 rounded-e-lg hover:bg-blue-600">
+          <button
+            onClick={() => toggleWalletPopup()}
+            className="bg-blue-500 font-semibold px-2 py-3 rounded-e-lg hover:bg-blue-600"
+          >
             {" "}
             Wallet{" "}
           </button>
         </span>
       </div>
-
+      {toggleWallet && (
+        <WalletPopup
+          isOpen={toggleWallet}
+          onClose={() => setToggleWallet(false)}
+        />
+      )}
       <div className="flex justify-center items-center">
         <div className="grid grid-cols-5 gap-4 w-full max-w-lg p-5 mt-2">
           {grid.map((cell, index) => (
@@ -177,7 +200,7 @@ const MineGameMobile = () => {
             <option value="" disabled>
               Select Mines
             </option>
-            {[...Array(9)].map((_, i) => (
+            {[...Array(24)].map((_, i) => (
               <option key={i + 1} value={i + 1}>
                 {i + 1}
               </option>
@@ -198,10 +221,9 @@ const MineGameMobile = () => {
           ) : (
             <button
               onClick={handleBet}
-              className={`mt-2 px-4 py-2 w-full font-mono ${
+              className={`mt-2 px-4 py-3 w-full font-mono ${
                 !betAmount ? "bg-green-700" : "bg-green-600"
               } rounded-lg hover:bg-green-700 transition cursor-pointer`}
-              disabled={!betAmount || !mineCount}
             >
               Bet
             </button>
