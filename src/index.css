@@ -11,13 +11,3 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
-@layer utilities {
-  .flip-card.flip .front {
-    transform: rotateY(180deg);
-  }
-
-  .flip-card.flip .back {
-    transform: rotateY(0deg);
-  }
-}
