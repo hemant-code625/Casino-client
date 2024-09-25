@@ -47,6 +47,7 @@ const MineGameDesktop = () => {
     setOpacity(false);
     setGrid(Array(25).fill(null));
     setTilesClicked(false);
+    setSelectedTiles([]);
 
     if (!betAmount || betAmount <= 0) {
       toast.error("Please enter a valid amount");
@@ -87,7 +88,7 @@ const MineGameDesktop = () => {
     if (isGameOver || grid[position] !== null) return;
 
     setTilesClicked(true);
-    setSelectedTiles([...selectedTiles, position]);
+
     try {
       const { data } = await selectTile({
         variables: { gameId, position },
@@ -95,10 +96,15 @@ const MineGameDesktop = () => {
       const isMine = data.selectTile.isMine;
       setMultiplier(data.selectTile.multiplier);
       setWinningAmount(data.selectTile.winningAmount);
-      const newGrid = [...grid];
-
-      newGrid[position] = isMine ? mine : gem;
-      setGrid(newGrid);
+      // Using functional setState to ensure you're updating based on the latest state
+      setGrid((prevGrid) => {
+        const newGrid = [...prevGrid];
+        newGrid[position] = isMine ? mine : gem;
+        if (isMine) {
+          setSelectedTiles(newGrid);
+        }
+        return newGrid;
+      });
 
       const audio = new Audio(isMine ? mineAudio : gemAudio);
       audio.play();
@@ -116,12 +122,11 @@ const MineGameDesktop = () => {
     playButtonClickedAudio();
     setIsGameOver(true);
     setOpacity(true);
-
+    setSelectedTiles(grid);
     try {
       const { data } = await cashoutResult({
         variables: { gameId },
       });
-      console.log("data.cashoutResult ", data.cashoutResult);
       setGrid(
         data.cashoutResult.mineField.map((cell) => (cell === "M" ? mine : gem))
       );
@@ -250,6 +255,10 @@ const MineGameDesktop = () => {
               >
                 <div
                   className={`${
+                    selectedTiles[index]
+                      ? "border-2 bg-gray-500 rounded-lg"
+                      : ""
+                  } ${
                     opacity ? "opacity-65" : ""
                   } absolute inset-0 flex items-center justify-center`}
                 >

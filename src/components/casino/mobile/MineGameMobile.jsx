@@ -31,6 +31,7 @@ const MineGameMobile = () => {
   const [selectTile] = useMutation(SELECT_TILE);
   const [toggleWallet, setToggleWallet] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [selectedTiles, setSelectedTiles] = useState([]);
 
   const toggleWalletPopup = () => {
     setToggleWallet(!toggleWallet);
@@ -51,6 +52,7 @@ const MineGameMobile = () => {
     setOpacity(false);
     setGrid(Array(25).fill(null));
     setTilesClicked(false);
+    setSelectedTiles([]);
 
     if (!betAmount && betAmount <= 0) {
       toast.error("Please enter a valid amount");
@@ -94,13 +96,19 @@ const MineGameMobile = () => {
         variables: { gameId, position },
       });
       const isMine = data.selectTile.isMine;
-      const newGrid = [...grid];
       setMultiplier(data.selectTile.multiplier);
       setWinningAmount(data.selectTile.winningAmount);
 
-      newGrid[position] = isMine ? mine : gem;
-      setGrid(newGrid);
-      // Play corresponding sound effect
+      // Using functional setState to ensure you're updating based on the latest state
+      setGrid((prevGrid) => {
+        const newGrid = [...prevGrid];
+        newGrid[position] = isMine ? mine : gem;
+        if (isMine) {
+          setSelectedTiles(newGrid);
+        }
+        return newGrid;
+      });
+
       const audio = new Audio(isMine ? mineAudio : gemAudio);
       audio.play();
 
@@ -117,6 +125,7 @@ const MineGameMobile = () => {
     playButtonClickedAudio();
     setIsGameOver(true);
     setOpacity(true);
+    setSelectedTiles(grid);
 
     try {
       const { data } = await cashoutResult({
@@ -174,6 +183,8 @@ const MineGameMobile = () => {
             >
               <div
                 className={`${
+                  selectedTiles[index] ? "border-2 bg-gray-500 rounded-lg" : ""
+                } ${
                   opacity ? "opacity-65" : ""
                 } absolute inset-0 flex items-center justify-center`}
               >
