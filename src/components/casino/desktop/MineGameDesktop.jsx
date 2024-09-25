@@ -16,7 +16,7 @@ import WalletPopup from "../../WalletPopup.jsx";
 import { toast } from "react-toastify";
 
 const MineGameDesktop = () => {
-  const [betAmount, setBetAmount] = useState("");
+  const [betAmount, setBetAmount] = useState(null);
   const [mineCount, setMineCount] = useState(3);
   const [gameId, setGameId] = useState(null);
   const [multiplier, setMultiplier] = useState(0);

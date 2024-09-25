@@ -16,7 +16,7 @@ import WalletPopup from "../../WalletPopup.jsx";
 import { toast } from "react-toastify";
 
 const MineGameMobile = () => {
-  const [betAmount, setBetAmount] = useState("");
+  const [betAmount, setBetAmount] = useState(null);
   const [mineCount, setMineCount] = useState(3);
   const [gameId, setGameId] = useState(null);
 
@@ -54,7 +54,7 @@ const MineGameMobile = () => {
     setTilesClicked(false);
     setSelectedTiles([]);
 
-    if (!betAmount && betAmount <= 0) {
+    if (!betAmount || betAmount <= 0) {
       toast.error("Please enter a valid amount");
       return;
     }
