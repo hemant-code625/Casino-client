@@ -45,7 +45,6 @@ const MineGameMobile = () => {
   const [cashoutResult] = useMutation(CASHOUT_RESULT);
 
   const handleBet = async () => {
-    playButtonClickedAudio();
     setIsGameOver(false);
     setMultiplier(0);
     setWinningAmount(0);
@@ -71,6 +70,7 @@ const MineGameMobile = () => {
         },
       });
       setLoading(false);
+      playButtonClickedAudio();
       setGameId(data.startGame.gameId);
     } catch (error) {
       setLoading(false);
