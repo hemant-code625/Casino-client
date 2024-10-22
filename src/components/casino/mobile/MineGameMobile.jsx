@@ -32,6 +32,7 @@ const MineGameMobile = () => {
   const [toggleWallet, setToggleWallet] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedTiles, setSelectedTiles] = useState([]);
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
 
   const toggleWalletPopup = () => {
     setToggleWallet(!toggleWallet);
@@ -223,6 +224,32 @@ const MineGameMobile = () => {
           </select>
           <div className="ml-3">Multiplier: {multiplier} x </div>
           <div className="ml-3">Winning Amount: {winningAmount}</div>
+          {/* GAME GUIDE */}
+          <div className="mt-4">
+            <h2
+              onClick={() => setIsGuideOpen(!isGuideOpen)}
+              className="text-sm border-b-2 w-fit rounded-md mb-2 p-2 border-gray-700 cursor-pointer"
+            >
+              Click here for game guide {isGuideOpen ? `▲` : `▼`}
+            </h2>
+            {isGuideOpen && (
+              <>
+                <p className="text-sm">
+                  1. Select the number of mines you want to play with.
+                </p>
+                <p className="text-sm">
+                  2. Click on the tiles to reveal the hidden gems.
+                </p>
+                <p className="text-sm">
+                  3. If you reveal a mine, the game is over.
+                </p>
+                <p className="text-sm">
+                  4. Cashout your winnings before hitting a mine.
+                </p>
+              </>
+            )}
+          </div>
+
           {gameId && !isGameOver ? (
             <button
               onClick={handleCashout}
