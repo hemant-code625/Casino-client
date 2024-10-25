@@ -5,13 +5,13 @@ import { toast } from "react-toastify";
 const Register = () => {
   const { register, handleSubmit } = useForm();
   const navigate = useNavigate();
-
+  const url = import.meta.env.VITE_API_URL;
   const onSubmit = async (data) => {
     if (data.password !== data.confirmPassword) {
       return toast.error("Passwords do not match");
     }
     try {
-      const res = await fetch("http://localhost:8080/api/v1/user/register", {
+      const res = await fetch(`${url}/api/v1/user/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

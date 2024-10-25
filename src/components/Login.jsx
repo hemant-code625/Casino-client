@@ -6,10 +6,11 @@ import Cookies from "js-cookie";
 const Login = () => {
   const { register, handleSubmit, reset } = useForm();
   const navigate = useNavigate();
+  const url = import.meta.env.VITE_API_URL;
 
   const onSubmit = async (data) => {
     try {
-      const res = await fetch("http://localhost:8080/api/v1/user/login", {
+      const res = await fetch(`${url}/api/v1/user/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -28,7 +29,7 @@ const Login = () => {
         });
         Cookies.set("userId", response.data.user._id);
         Cookies.set("username", response.data.user.username);
-        navigate("/");
+        navigate("/casino/mines");
       }
     } catch (error) {
       console.log(error);

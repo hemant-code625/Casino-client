@@ -6,19 +6,18 @@ import Cookies from "js-cookie";
 const AddBankDetails = () => {
   const { register, handleSubmit } = useForm();
   const navigate = useNavigate();
+  const url = import.meta.env.VITE_API_URL;
+
   const onSubmit = async (data) => {
     try {
-      const res = await fetch(
-        "http://localhost:8080/api/v1/user/save-bank-details",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${Cookies.get("accessToken")}`,
-          },
-          body: JSON.stringify(data),
-        }
-      );
+      const res = await fetch(`${url}/api/v1/user/save-bank-details`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Cookies.get("accessToken")}`,
+        },
+        body: JSON.stringify(data),
+      });
       const response = await res.json();
       if (response.statusCode > 400 && response.statusCode < 500) {
         toast.error(response.message);
