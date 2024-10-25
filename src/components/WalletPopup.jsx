@@ -38,7 +38,7 @@ const WalletPopup = ({ isOpen, onClose }) => {
       key: razorpay_key,
       amount: orderData.amount,
       currency: "INR",
-      name: "Amingo",
+      name: "Amingoo",
       description: "Test Transaction",
       order_id: orderData.id,
       handler: async (response) => {

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
+import Cookies from "js-cookie";
 import {
   START_GAME,
   SELECT_TILE,
@@ -14,6 +15,7 @@ import mineAudio from "../../../assets/mine.mp3";
 import buttonClickedAudio from "../../../assets/buttonClicked.mp3";
 import WalletPopup from "../../WalletPopup.jsx";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const MineGameMobile = () => {
   const [betAmount, setBetAmount] = useState(null);
@@ -34,7 +36,14 @@ const MineGameMobile = () => {
   const [selectedTiles, setSelectedTiles] = useState([]);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
 
+  const navigate = useNavigate();
+  const username = Cookies.get("username");
+
   const toggleWalletPopup = () => {
+    const isBankDetailsFilled = Cookies.get("isBankDetailsFilled");
+    if (!isBankDetailsFilled) {
+      navigate("/bank-details");
+    }
     setToggleWallet(!toggleWallet);
   };
 
@@ -155,7 +164,10 @@ const MineGameMobile = () => {
 
   return (
     <div className="select-none bg-gradient-to-br bg-gray-900 text-white min-h-screen">
-      <h1 className="text-center text-3xl pt-4 font-bold">Mine Game</h1>
+      <div className="text-center grid grid-cols-2 place-items-end pt-4">
+        <h1 className="text-3xl font-bold mr-[-5rem]">Mine Game</h1>
+        <h1 className="mr-4">Hello, {username}</h1>
+      </div>
       <div className="flex flex-col items-center justify-center p-8">
         <span className="bg-gray-800 rounded-lg">
           <span className="px-2 py-3"> {"0.0000 ₹"} </span>
