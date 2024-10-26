@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import Cookies from "js-cookie";
 import {
@@ -9,16 +9,16 @@ import {
 } from "../../../utility/Querries.js";
 import mine from "../../../assets/mine.svg";
 import gem from "../../../assets/gem.svg";
-// import mineEffect from "../../../assets/mineEffect.gif";
 import gemAudio from "../../../assets/gem.mp3";
 import mineAudio from "../../../assets/mine.mp3";
 import buttonClickedAudio from "../../../assets/buttonClicked.mp3";
 import WalletPopup from "../../WalletPopup.jsx";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 const MineGameDesktop = () => {
-  const [betAmount, setBetAmount] = useState(null);
+  const [betAmount, setBetAmount] = useState(0);
   const [mineCount, setMineCount] = useState(3);
   const [gameId, setGameId] = useState(null);
   const [multiplier, setMultiplier] = useState(0);
@@ -35,9 +35,13 @@ const MineGameDesktop = () => {
   const [loading, setLoading] = useState(false);
   const [selectedTiles, setSelectedTiles] = useState([]);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
+  const [wallet, setWallet] = useState(0);
 
   const navigate = useNavigate();
-  const username = Cookies.get("username");
+  const token = Cookies.get("accessToken");
+  const { username } = jwtDecode(token);
+  const url = import.meta.env.VITE_API_URL;
+
   const { refetch } = useQuery(GET_GAME_RESULTS, {
     variables: { gameId },
     skip: !gameId,
@@ -57,6 +61,12 @@ const MineGameDesktop = () => {
       toast.error("Please enter a valid amount");
       return;
     }
+    if (betAmount > wallet) {
+      toast.error("Insufficient funds in wallet");
+      return;
+    }
+    // TODO: Deduct the bet amount from the wallet in the database too
+    setWallet(wallet - betAmount);
     if (mineCount === "") {
       toast.error("Please select number of mines to play with to continue");
       return;
@@ -120,6 +130,25 @@ const MineGameDesktop = () => {
       console.error("Error selecting tile:", error);
     }
   };
+  useEffect(() => {
+    getWallet();
+  }, []);
+
+  const getWallet = async () => {
+    try {
+      const response = await fetch(`${url}/api/v1/user/wallet`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const res = await response.json();
+      setWallet(res.data);
+    } catch (error) {
+      console.error("Error updating wallet:", error);
+    }
+  };
 
   const handleCashout = async () => {
     playButtonClickedAudio();
@@ -137,6 +166,7 @@ const MineGameDesktop = () => {
       setBetAmount(data.cashoutResult.betAmount);
       setMultiplier(data.cashoutResult.multiplier);
       setWinningAmount(data.cashoutResult.winningAmount);
+      setWallet(wallet + data.cashoutResult.winningAmount);
       toast.success("Cashout successfully");
     } catch (error) {
       console.error("Error cashing out:", error);
@@ -150,10 +180,25 @@ const MineGameDesktop = () => {
       data.getGameResults.mineField.map((cell) => (cell === "M" ? mine : gem))
     );
   };
-  const toggleWalletPopup = () => {
-    const isBankDetailsFilled = Cookies.get("isBankDetailsFilled");
-    if (!isBankDetailsFilled) {
-      navigate("/bank-details");
+  const toggleWalletPopup = async () => {
+    try {
+      const response = await fetch(
+        `${url}/api/v1/payment/verify-bank-details`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const bankDetails = await response.json();
+
+      if (!bankDetails.added) {
+        navigate("/bank-details");
+      }
+    } catch (error) {
+      console.error("Error fetching user details:", error);
     }
     setToggleWallet(!toggleWallet);
   };
@@ -165,7 +210,10 @@ const MineGameDesktop = () => {
       </div>
       <div className="flex flex-col items-center justify-center p-8">
         <span className="bg-gray-800 rounded-lg">
-          <span className="px-2 py-3"> {"0.0000 ₹"} </span>
+          <span className="px-2 py-3">
+            {" "}
+            {wallet <= 0 ? "0.0000 ₹" : wallet + " ₹"}{" "}
+          </span>
           <button
             onClick={() => toggleWalletPopup()}
             className="bg-blue-500 font-semibold px-2 py-3 rounded-e-lg hover:bg-blue-600"
@@ -178,6 +226,7 @@ const MineGameDesktop = () => {
       {toggleWallet && (
         <WalletPopup
           isOpen={toggleWallet}
+          UpdateWallet={() => getWallet()}
           onClose={() => setToggleWallet(false)}
         />
       )}

@@ -1,15 +1,16 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
-import axios from "axios";
 import { toast } from "react-toastify";
+import Cookies from "js-cookie";
 
-const WalletPopup = ({ isOpen, onClose }) => {
+const WalletPopup = ({ isOpen, UpdateWallet, onClose }) => {
   const [selectedTab, setSelectedTab] = useState("addMoney");
   const [amount, setAmount] = useState(0);
   const [, setOrder] = useState(null);
   const [loading, setLoading] = useState(false);
   const razorpay_key = import.meta.env.VITE_RAZORPAY_KEY;
   const url = import.meta.env.VITE_API_URL;
+  const token = Cookies.get("accessToken");
 
   const handleDeposit = async () => {
     try {
@@ -24,7 +25,7 @@ const WalletPopup = ({ isOpen, onClose }) => {
         },
         body: JSON.stringify({ amt: parseInt(amount) }),
       });
-      const data = await response.json();
+      const data = await response.json(); // here amount is in paise
       setLoading(false);
       setOrder(data);
       openRazorpay(data);
@@ -43,17 +44,24 @@ const WalletPopup = ({ isOpen, onClose }) => {
       order_id: orderData.id,
       handler: async (response) => {
         try {
-          const verification = await axios.post(
+          const verification = await fetch(
             `${url}/api/v1/payment/verify-payment`,
             {
-              payment_id: response.razorpay_payment_id,
-              order_id: response.razorpay_order_id,
-              signature: response.razorpay_signature,
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                payment_id: response.razorpay_payment_id,
+                order_id: response.razorpay_order_id,
+                signature: response.razorpay_signature,
+                amount: orderData.amount / 100,
+              }),
             }
           );
-
-          if (verification.data.success) {
-            setAmount(0);
+          if (verification.ok) {
+            UpdateWallet();
             onClose();
           } else {
             setAmount(0);

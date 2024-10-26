@@ -27,8 +27,6 @@ const Login = () => {
         Cookies.set("refreshToken", response.data.refreshToken, {
           expires: 7,
         });
-        Cookies.set("userId", response.data.user._id);
-        Cookies.set("username", response.data.user.username);
         navigate("/casino/mines");
       }
     } catch (error) {
