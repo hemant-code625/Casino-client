@@ -108,7 +108,10 @@ const MineGameDesktop = () => {
       });
       const isMine = data.selectTile.isMine;
       setMultiplier(data.selectTile.multiplier);
-      setWinningAmount(data.selectTile.winningAmount);
+      const roundedWinningAmount = parseFloat(
+        data.selectTile.winningAmount.toFixed(4)
+      );
+      setWinningAmount(roundedWinningAmount);
       // Using functional setState to ensure you're updating based on the latest state
       setGrid((prevGrid) => {
         const newGrid = [...prevGrid];
@@ -159,14 +162,20 @@ const MineGameDesktop = () => {
       const { data } = await cashoutResult({
         variables: { gameId },
       });
+      const roundedWinningAmount = parseFloat(
+        data.cashoutResult.winningAmount.toFixed(4)
+      );
+      const updatedWallet = parseFloat(
+        (wallet + roundedWinningAmount).toFixed(4)
+      );
       setGrid(
         data.cashoutResult.mineField.map((cell) => (cell === "M" ? mine : gem))
       );
       setMineCount(data.cashoutResult.mineCount);
       setBetAmount(data.cashoutResult.betAmount);
       setMultiplier(data.cashoutResult.multiplier);
-      setWinningAmount(data.cashoutResult.winningAmount);
-      setWallet(wallet + data.cashoutResult.winningAmount);
+      setWinningAmount(roundedWinningAmount);
+      setWallet(updatedWallet);
       toast.success("Cashout successfully");
     } catch (error) {
       console.error("Error cashing out:", error);
