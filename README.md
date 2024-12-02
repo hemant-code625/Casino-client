@@ -12,7 +12,7 @@ A dynamic betting web application inspired by Stake's Mine Game, developed with 
 - 💰 **Secure Payment Integration:** Razorpay API for deposits and wallet management with 100+ successful transactions in test mode.  
 - 📱 **Responsive Design:** Built with TailwindCSS to ensure a mobile-friendly and engaging user interface.  
 - 🎲 **Dynamic Reward System:** Players can win multipliers for finding gems or lose their bets if hitting a mine.
-- 
+  
 ## Tech Stack  
 - **Frontend:** React.js, TailwindCSS  
 - **Backend:** Node.js, Express.js, GraphQL  
